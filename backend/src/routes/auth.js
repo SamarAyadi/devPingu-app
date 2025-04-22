@@ -5,6 +5,17 @@ import User from "../models/user.js";
 
 const authRouter = express.Router();
 
+
+// Utility function to set JWT token in cookie
+const setTokenCookie = (res, token) => {
+  res.cookie("token", token, {
+    httpOnly: true, // Prevent access from JavaScript
+    secure: process.env.NODE_ENV === "production", // Use HTTPS in production
+    sameSite: "Strict", // Prevent CSRF
+    expires: new Date(Date.now() + 8 * 3600000), // 8 hours
+  });
+};
+
 // === SIGN UP ===
 authRouter.post("/signup", async (req, res) => {
   try {
@@ -36,12 +47,7 @@ authRouter.post("/signup", async (req, res) => {
     const token = await savedUser.getJWT();
 
     // Set token as secure cookie
-    res.cookie("token", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "Strict",
-      expires: new Date(Date.now() + 8 * 3600000), // 8 hours
-    });
+     setTokenCookie(res, token);
 
     const { _id, emailId: email } = savedUser;
     res.status(201).json({
@@ -74,12 +80,7 @@ authRouter.post("/login", async (req, res) => {
     const token = await user.getJWT();
 
     // Set the token in a secure cookie
-    res.cookie("token", token, {
-      httpOnly: true, // Prevent access from JavaScript
-      secure: process.env.NODE_ENV === "production", // Use HTTPS in production
-      sameSite: "Strict", // Prevent CSRF
-      expires: new Date(Date.now() + 8 * 3600000), // 8 hours
-    });
+    setTokenCookie(res, token);
 
     // Send back limited user info (no password!)
     const { _id, emailId: email, name } = user;
