@@ -1,13 +1,17 @@
 import express from "express";
 import { connectDB } from "./config/database.js";
-
-
 import authRouter from "./routes/auth.js";
+import cookieParser from "cookie-parser"
+
+
+
+
 
 const app = express();
 const port = 7777;
 
 app.use(express.json())
+app.use(cookieParser());
 
 
 
@@ -21,5 +25,5 @@ connectDB()
     });
   })
   .catch((err) => {
-    console.error("Dtabase cannot be connected");
+    console.error("Database cannot be connected");
   });
